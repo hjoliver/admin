@@ -17,7 +17,7 @@
 
 ### Terminology
 
-- "upstream" and "downstream" refer to graph relationships
+- "parent" and "child" refer to upstream and downstream graph relationships
 - "task" is short for "task proxy object"
 - "n=0 window": tasks the scheduler is currently aware of (the "task pool")
 - "n=M window": tasks within M edges of the n=0 pool
@@ -29,49 +29,39 @@ We first considered replacing task-cycle-based
 with graph-based Spawn-On-Demand (SoD) back in
 [cylc/cylc-flow#993](https://github.com/cylc/cylc-flow/issues/993).
 
-The ultimate solution probably looks like
+The ultimate event-driven solution is for Cylc 9
 [cylc/cylc-flow#3304](https://github.com/cylc/cylc-flow/issues/3304)
-but that involves a major refactoring of the codebase for Cylc 9.
-
-In fact SoD is technically orthogonal to other Cylc 9 plans and can be
-implemented easily within the current framework, by simply getting task proxies
-to spawn downstream tasks on demand instead of next-cycle successors on submit.
-This will simplify Cylc internals and will only make future Cylc 9 changes
-easier to implement in the future.
+but SoD itself can actually be implemented before then by simply getting task
+proxies to spawn children on demand instead of next-cycle successors on submit.
+This will simplify Cylc internals and usage, and will make Cylc 9 changes easier
+to implement in the future.
 
 ## Advantages of SoD
 
-- Dramatic reduction in task pool size (e.g. 10-100x in large workflows)
-  - No need to hold many waiting and succeded tasks in addition to the "active" ones
-  - No need for dynamic dependency matching (update prerequisites directly)
-  - Lighter load on the UI; the graph view becomes usable in large workflows
-- A graph-based "window on the workflow" that is easy for users to understand.
-  - (try explaining SoS to users!)
-- Suicide triggers not needed for alternate path branching
-    - the unused path does not get spawned in the first place
-- Task instances can run out of (cycle point) order
-  - No stalled workflows due to unspawned waiting tasks downstream of a failed task
-- "Re-flow" sub-graphs of the workflow by simply triggering the top task
-  - (automatic partial triggering by the original flow is difficult though)
-- Solves the first-instance problem of task definitions added mid-run
-  - (in SoS users have to add the first instance manually - after which it
-    will spawn its own next-cycle successor - because we can't guess which
-    instance should be the first one; in SoD the right one will appear on
-    demand)
+- **Dramatically smaller task pool**
+- **No need for dynamic dependency matching** (update prerequisites directly)
+- **An easily understood graph-based "window on the workflow"**
+- **No suicide triggers to achieve alternate path branching**
+- **Task instances can run out of (cycle point) order**
+- **No stalling with unspawned tasks downstream of a failed task**
+- **"Re-flow" the graph by simply re-triggering a task**
+- **No need to manually insert first instances of new tasks added mid-run**
 
-## Implementation Overview
+## Implementation: Basic Concept
 
-During graph parsing, record exaclty who depends on each task output. Then:
+During graph parsing record who depends on each task output (currently tasks
+know their own prerequisites and outputs, but not who depends on the outputs).
+Then:
 1. At start-up auto-spawn tasks with no one upstream to do it for them,
    and continue to do this as the workflow evolves
-1. As completed outputs are reported, spawn (if not already spawned) downstream
+   - (We can avoid this with future enhancements - see below)
+1. As outputs are completed, spawn (if not already spawned) downstream
    tasks that depend on them, and update their prerequisites directly
-   - tasks with multiple prerequisites are handled by partially-satisfied
-     waiting tasks (potentially requiring suicide triggers or automatica
-     housekeeping - but much less than in SoS)
-   - tasks with conditional prerequisites 
-1. Remove finished tasks (succeeded or failed) so long as doing so won't empty
-   the task pool
+   - (some housekeeping of waiting tasks is required - see below)
+1. Remove finished tasks (succeeded or failed) as soon as all of their parents
+   have finished (see below)
+   - unless removing them would empty the task pool (see below)
+   - (some housekeeping of finished tasks is required - see below)
 
 ### Consequences
 
