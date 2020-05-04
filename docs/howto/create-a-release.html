@@ -1,0 +1,292 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Creating a release for Cylc &#8212; cylc-admin 0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../index.html">cylc-admin 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="creating-a-release-for-cylc">
+<h1>Creating a release for Cylc<a class="headerlink" href="#creating-a-release-for-cylc" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="before-you-start-first-time">
+<h2>Before you start (First time)<a class="headerlink" href="#before-you-start-first-time" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Create a GPG key for verification on Github: <a class="reference external" href="https://help.github.com/en/articles/generating-a-new-gpg-key">Instructions</a>
+At step 3 I had to use <code class="docutils literal notranslate"><span class="pre">gpg</span> <span class="pre">--default-key</span> <span class="pre">rsa4096</span> <span class="pre">--gen-key</span></code>.</p></li>
+<li><p><a class="reference external" href="https://help.github.com/en/articles/telling-git-about-your-signing-key">Share this key locally with git, as well as Github:</a></p></li>
+<li><p>Create a PyPI account for yourself if you don’t already have one.
+<a class="reference external" href="https://pypi.org/account/register/">Sign up page</a>
+Get an owner to add you as a maintainer or owner.</p></li>
+</ul>
+</div>
+<div class="section" id="create-pre-release-pull-requests">
+<h2>Create pre-release Pull requests<a class="headerlink" href="#create-pre-release-pull-requests" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Ensure that version numbers are consistent. These are likely to be set in
+files such as  <code class="docutils literal notranslate"><span class="pre">cylc-flow/cylc/flow/__init__</span></code> or <code class="docutils literal notranslate"><span class="pre">__version__.py</span></code> and
+<code class="docutils literal notranslate"><span class="pre">setup.py</span></code> files, usually at the top level of a repository.</p></li>
+<li><p>Examine Pull Requests made since the last release for:
+* cylc-flow
+* cylc-conda
+* cylc-ui
+* cylc-uiserver</p></li>
+<li><p>Add to <code class="docutils literal notranslate"><span class="pre">CHANGES.md</span></code> text in each repository.</p></li>
+<li><p>Check the <code class="docutils literal notranslate"><span class="pre">CONTRIBUTING.md</span></code>. Ensure that all contributors are listed.
+You can do this using Github, or locally with <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">shortlog</span> <span class="pre">-sn</span></code></p></li>
+<li><p>Create PRs for any changes you have made and have these reviewed and merged
+to master.</p></li>
+<li><p>Make sure any other Pending PR’s for the milestone are merged or closed.</p></li>
+</ul>
+</div>
+<div class="section" id="test-the-build">
+<h2>Test the build<a class="headerlink" href="#test-the-build" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Check locally that you have the updated version of master. Ensure that you
+local copy is up to date, and that it has the correct tags attached.</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">log</span></code> to ensure that you have the correct version and tag.</p></li>
+<li><p>Check that you can buid your distribution locally:</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> my/repository/
+
+<span class="c1"># This may seem slow as this will build the wheel as well as the source</span>
+<span class="c1"># distributions</span>
+python3 setup.py bdist_wheel sdist
+
+<span class="c1"># check that you&#39;ve successfully created wheel and source files</span>
+ls dist/
+
+<span class="c1"># Tidy up</span>
+rm -r dist
+</pre></div>
+</div>
+</div>
+<div class="section" id="tag-the-version">
+<h2>Tag the version<a class="headerlink" href="#tag-the-version" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Examine previous tags using</span>
+git tag -ln
+
+<span class="c1"># Create a new tag  &quot;tag_name&quot; is usually a version number.</span>
+git tag -a -s &lt;tag_name&gt;
+
+<span class="c1"># Push tags:</span>
+git push --tags upstream &lt;tag_name&gt;
+</pre></div>
+</div>
+</div>
+<div class="section" id="create-a-release-on-github">
+<h2>Create a release on Github<a class="headerlink" href="#create-a-release-on-github" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>On Github navigate to the repository for which you are creating a release
+for and click on the relases tab. You should see your tag at the top.</p></li>
+<li><p>[Optional] You may wish to open the edit page of a previous release in a
+new tab so that you can copy and paste its data.</p></li>
+<li><p>Click “Draft a new release” button.</p></li>
+<li><p>Add your tag to the release. Edit the other fields to give appropriate
+information.</p></li>
+</ul>
+</div>
+<div class="section" id="upload-build-to-pypi">
+<h2>Upload build to PyPI<a class="headerlink" href="#upload-build-to-pypi" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Build your distribution inside the repository folder this time</span>
+<span class="nb">cd</span> my/repository
+
+<span class="c1"># Create your build</span>
+python3 setup.py bdist_wheel sdist
+
+<span class="c1"># Check that the dist folder contains the right artifacts:</span>
+ls dist/
+
+<span class="c1"># Upload your build to PyPI. n.b. This will not work if your build has the</span>
+<span class="c1"># same version number as one already on PyPI.</span>
+twine upload dist/*
+</pre></div>
+</div>
+<p>Check PyPI for your upload.</p>
+</div>
+<div class="section" id="upload-to-conda">
+<h2>Upload to Conda<a class="headerlink" href="#upload-to-conda" title="Permalink to this headline">¶</a></h2>
+<p>NOTE: the GitHub and PYPI releases are prerequisites for releasing to
+Conda Forge!</p>
+<p>The Conda Forge release process is mostly automated by bots. These bots
+are set up during the initial project bootstrap, which has been done for
+all the projects that are part of Cylc 8.</p>
+<p>As there are inter-dependencies amongst the Cylc 8 parts, you should
+know the dependency tree, and start by the leaf nodes (i.e. a module
+A may have multiple dependants, but no dependency to other modules).</p>
+<p>For example, Cylc UI Server depends on Cylc Flow. So unless you are
+releasing only Cylc UI Server, you should release Cylc Flow first.</p>
+<ul class="simple">
+<li><p>On GitHub, navigate to the project repository on GitHub, e.g.</p></li>
+</ul>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/conda-forge/metomi-isodatetime-feedstock">https://github.com/conda-forge/metomi-isodatetime-feedstock</a></p></li>
+<li><p><a class="reference external" href="https://github.com/conda-forge/cylc-uiserver-feedstock">https://github.com/conda-forge/cylc-uiserver-feedstock</a></p></li>
+<li><p><a class="reference external" href="https://github.com/conda-forge/cylc-ui-feedstock">https://github.com/conda-forge/cylc-ui-feedstock</a></p></li>
+<li><p><a class="reference external" href="https://github.com/conda-forge/cylc-flow-feedstock">https://github.com/conda-forge/cylc-flow-feedstock</a></p></li>
+<li><p><a class="reference external" href="https://github.com/conda-forge/cylc-feedstock">https://github.com/conda-forge/cylc-feedstock</a></p></li>
+</ul>
+<p>On each of these repositories, the release process should be pretty
+much the same. Your work will be mainly (if not exclusive) on
+the <code class="docutils literal notranslate"><span class="pre">recipe/meta.yaml</span></code> file.</p>
+<p>This is a possible order of action:</p>
+<ul class="simple">
+<li><p>Check open pull requests—There are bots that alert about dependencies</p></li>
+</ul>
+<p>(N.B. conda packages do not use PYPI for dependencies, they all use
+other conda packages as dependencies!.
+- Check if you need to update the version in the Jinja2 variable right
+at the top of the file.
+- If you updated the version, set the build number back to 0.
+- If you did not update the version, increase the build number.
+- If the conda package contains a source URL, check that it is evaluated
+correctly by manually replacing the Jinja variables, and trying this out
+in a browser. Then update the <code class="docutils literal notranslate"><span class="pre">sha256</span></code> value (you can get this value
+from PYPI, or use some tool like <code class="docutils literal notranslate"><span class="pre">sha256sum</span></code>).
+- Check requirements (we may have changed setup.py, or package.json, etc.
+ensure we are up to date).
+- Ensure the test commands are still valid (i.e. they can be executed
+successfully)
+- Check if you need to change summary, description, or any other field.
+- Create a branch in your clone, commit, and push to your fork. Wait
+for the feedback of the Conda Forge CI bots.
+- In the meantime, test the package locally (see below).
+- If the bots gave you the OK, and testing locally worked fine too,
+your pull request should be ready for review.
+- If you changed something in the recipe, and you are not sure if
+that will affect the Conda Forge package, you can ask Conda Forge
+maintainers help reviewing the pull request (via Gitter).
+- Otherwise, get others from Cylc Core team to review &amp; approve. Once
+your pull request has been approved and merged, the bots will start the
+release process.</p>
+<p>From past experience, I’ve seen Conda packages available in Conda Forge
+in under 30 minutes, but have also had to wait hours (&lt;8 hours) for it
+to show in Conda Forge. For example, if Azure or GitHub infrastructure
+have issues (as I experienced during the first releases) it may take days.
+So keep that in mind before announcing the Conda packages.</p>
+<p>To test packages locally, first you should make sure that Conda is
+configured to avoid automatically upload the package. Open you <code class="docutils literal notranslate"><span class="pre">~/.condarc</span></code>
+and check that you have something similar to:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">channels</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">defaults</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">conda-forge</span>
+<span class="nt">ssl_verify</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">anaconda_upload</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+</pre></div>
+</div>
+<p>Now create a Conda environment for your tests, e.g.: <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">create</span> <span class="pre">-n</span> <span class="pre">cylc1</span></code>,
+and then activate it <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">cylc1</span></code>. Then to build and install
+locally:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Where $CONDA_FORGE_REPOSITORY could be, for example,</span>
+<span class="c1"># cylc-uiserver-feedstock.</span>
+<span class="nb">cd</span> <span class="nv">$CONDA_FORGE_REPOSITORY</span>
+<span class="c1"># Your package should not be listed!</span>
+conda list
+<span class="c1"># This will take some minutes and print useful information.</span>
+conda build recipe/
+<span class="c1"># The following command will install the locally created package. Before</span>
+<span class="c1"># installing it will ask you to confirm. Scroll up and search the</span>
+<span class="c1"># package name. The right-side column must show a location like</span>
+<span class="c1"># .../anaconda3/conda-bld/linux-64::cylc-uiserver-0.1-py37_1.</span>
+<span class="c1"># This confirms you are installing the local build. Here $PACKAGE_NAME</span>
+<span class="c1"># could be something like cylc-uiserver.</span>
+conda install <span class="nv">$PACKAGE_NAME</span>
+</pre></div>
+</div>
+<p>At this point you should be good to go. Test the package with commands
+such as <code class="docutils literal notranslate"><span class="pre">which</span> <span class="pre">$PACKAGE_NAME</span></code>, or <code class="docutils literal notranslate"><span class="pre">$PACKAGE_NAME</span> <span class="pre">--version</span></code>, etc.
+Of if you are testing the metapackage, try running the complete system
+with a workflow and the UI or tui, and check if there is nothing wrong.</p>
+<p>If you found problems while testing locally, try troubleshooting locally,
+and either mark the pull request as draft, and close it. Merging the pull
+request will create a release.</p>
+<p>To undo a release, you will have to liaise with the maintainers via Gitter
+or Github. Or, alternatively, bump up the build number +1, and release it
+again.</p>
+</div>
+<div class="section" id="announce-on-riot-and-discourse">
+<h2>Announce on Riot and Discourse?<a class="headerlink" href="#announce-on-riot-and-discourse" title="Permalink to this headline">¶</a></h2>
+<p>Bask in the glory of having created a release, if appropriate.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Creating a release for Cylc</a><ul>
+<li><a class="reference internal" href="#before-you-start-first-time">Before you start (First time)</a></li>
+<li><a class="reference internal" href="#create-pre-release-pull-requests">Create pre-release Pull requests</a></li>
+<li><a class="reference internal" href="#test-the-build">Test the build</a></li>
+<li><a class="reference internal" href="#tag-the-version">Tag the version</a></li>
+<li><a class="reference internal" href="#create-a-release-on-github">Create a release on Github</a></li>
+<li><a class="reference internal" href="#upload-build-to-pypi">Upload build to PyPI</a></li>
+<li><a class="reference internal" href="#upload-to-conda">Upload to Conda</a></li>
+<li><a class="reference internal" href="#announce-on-riot-and-discourse">Announce on Riot and Discourse?</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/howto/create-a-release.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="../index.html">cylc-admin 0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, The Cylc Team.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>
